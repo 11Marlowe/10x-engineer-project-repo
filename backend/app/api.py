@@ -68,6 +68,9 @@ def get_prompt(prompt_id: str):
     # because we're accessing .id on None
     # Should return 404 instead!
     prompt = storage.get_prompt(prompt_id)
+
+    if prompt is None:
+        raise HTTPException(status_code=404, detail="Prompt not found")
     
     # This line causes the bug - accessing attribute on None
     if prompt.id:
@@ -107,7 +110,7 @@ def update_prompt(prompt_id: str, prompt_data: PromptUpdate):
         description=prompt_data.description,
         collection_id=prompt_data.collection_id,
         created_at=existing.created_at,
-        updated_at=existing.updated_at  # BUG: Should be get_current_time()
+        updated_at=get_current_time()  # BUG: Should be get_current_time()
     )
     
     return storage.update_prompt(prompt_id, updated_prompt)
@@ -151,10 +154,37 @@ def delete_collection(collection_id: str):
     # BUG #4: We delete the collection but don't handle the prompts!
     # Prompts with this collection_id become orphaned with invalid reference
     # Should either: delete the prompts, set collection_id to None, or prevent deletion
+
+    # Update all prompts with this collection_id to have no collection assigned
+    prompts = storage.get_prompts_by_collection(collection_id)
     
     if not storage.delete_collection(collection_id):
         raise HTTPException(status_code=404, detail="Collection not found")
     
     # Missing: Handle prompts that belong to this collection!
+    for prompt in prompts:
+        prompt.collection_id = None
+        # Save the updated prompt back to the storage
+        storage.update_prompt(prompt.id, prompt)
+    
     
     return None
+
+@app.patch("/prompts/{prompt_id}", response_model=Prompt)
+def patch_prompt(prompt_id: str, prompt_data: PromptUpdate):
+    existing_prompt = storage.get_prompt(prompt_id)
+    if not existing_prompt:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+
+    # Update fields only if they are provided in the request
+    update_data = prompt_data.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(existing_prompt, key, value)
+
+    # Optionally, update the updated_at timestamp
+    existing_prompt.updated_at = get_current_time()
+
+    # Save the updated prompt
+    return storage.update_prompt(prompt_id, existing_prompt)
+
+

@@ -28,7 +28,10 @@ class PromptCreate(PromptBase):
 
 
 class PromptUpdate(PromptBase):
-    pass
+    title: Optional[str] = None
+    content: Optional[str] = None
+    description: Optional[str] = None
+    collection_id: Optional[str] = None
 
 
 class Prompt(PromptBase):
