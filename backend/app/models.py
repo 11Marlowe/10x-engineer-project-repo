@@ -68,9 +68,11 @@ class Prompt(PromptBase):
     id: str = Field(default_factory=generate_id)
     created_at: datetime = Field(default_factory=get_current_time)
     updated_at: datetime = Field(default_factory=get_current_time)
+    tags: List[str] = []  # Add a list of tag names
 
     class Config:
         from_attributes = True
+
 
 
 # ============== Collection Models ==============
@@ -138,3 +140,11 @@ class HealthResponse(BaseModel):
     """
     status: str
     version: str
+
+class Tag(BaseModel):
+    """Model for a Tag."""
+    id: str = Field(default_factory=generate_id)
+    name: str = Field(..., min_length=1, max_length=50)
+
+
+

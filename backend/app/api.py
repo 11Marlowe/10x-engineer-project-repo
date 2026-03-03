@@ -317,3 +317,22 @@ def patch_prompt(prompt_id: str, prompt_data: PromptUpdate):
     # Save the updated prompt
     return storage.update_prompt(prompt_id, existing_prompt)
 
+@app.post("/prompts/{prompt_id}/tags")
+def add_tags_to_prompt(prompt_id: str, tags: List[str]):
+    prompt = storage.add_tags_to_prompt(prompt_id, tags)
+    if not prompt:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    return prompt
+
+@app.delete("/prompts/{prompt_id}/tags")
+def remove_tags_from_prompt(prompt_id: str, tags: List[str]):
+    prompt = storage.remove_tags_from_prompt(prompt_id, tags)
+    if not prompt:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    return prompt
+
+@app.get("/tags")
+def get_all_tags() -> List[str]:
+    prompts = storage.get_all_prompts()
+    tags = {tag for prompt in prompts for tag in prompt.tags}
+    return list(tags)

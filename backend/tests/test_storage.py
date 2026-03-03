@@ -95,3 +95,18 @@ def test_clear_storage(storage):
     storage.clear()
     assert len(storage.get_all_prompts()) == 0
     assert len(storage.get_all_collections()) == 0
+
+
+def add_tags_to_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+    prompt = self.get_prompt(prompt_id)
+    if not prompt:
+        return None
+    prompt.tags.extend(tag for tag in tags if tag not in prompt.tags)
+    return self.update_prompt(prompt_id, prompt)
+
+def remove_tags_from_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+    prompt = self.get_prompt(prompt_id)
+    if not prompt:
+        return None
+    prompt.tags = [tag for tag in prompt.tags if tag not in tags]
+    return self.update_prompt(prompt_id, prompt)
