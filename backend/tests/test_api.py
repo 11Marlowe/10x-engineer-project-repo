@@ -177,3 +177,67 @@ class TestCollections:
             # Prompt exists with orphaned collection_id
             assert prompts[0]["collection_id"] == collection_id
             # After fix, collection_id should be None or prompt should be deleted
+
+# Additional tests for comprehensive API coverage
+
+def test_create_and_list_prompts(client: TestClient, sample_prompt_data):
+    # Create prompt
+    response = client.post("/prompts", json=sample_prompt_data)
+    assert response.status_code == 201
+
+    # List prompts
+    response = client.get("/prompts")
+    data = response.json()
+    assert len(data["prompts"]) == 1
+    assert data["prompts"][0]["title"] == sample_prompt_data["title"]
+
+def test_create_prompt_invalid(client: TestClient):
+    response = client.post("/prompts", json={"title": "", "content": ""})
+    assert response.status_code == 422
+
+def test_update_prompt_not_found(client: TestClient, sample_prompt_data):
+    response = client.put("/prompts/nonexistent-id", json=sample_prompt_data)
+    assert response.status_code == 404
+
+def test_delete_prompt_not_found(client: TestClient):
+    response = client.delete("/prompts/nonexistent-id")
+    assert response.status_code == 404
+
+def test_create_collection_and_prompts_with_special_chars(client: TestClient):
+    special_name = "Special $%^&*()"
+    response = client.post("/collections", json={"name": special_name})
+    assert response.status_code == 201
+    collection_id = response.json()["id"]
+
+    # Add prompt with special characters
+    prompt_data = {
+        "title": special_name,
+        "content": "Special content",
+        "collection_id": collection_id
+    }
+    response = client.post("/prompts", json=prompt_data)
+    assert response.status_code == 201
+
+def test_sort_prompts_by_date(client: TestClient):
+    prompt1 = {"title": "First", "content": "Content 1"}
+    prompt2 = {"title": "Second", "content": "Content 2"}
+
+    client.post("/prompts", json=prompt1)
+    client.post("/prompts", json=prompt2)
+
+    response = client.get("/prompts")
+    prompts = response.json()["prompts"]
+    assert len(prompts) == 2
+    assert prompts[0]["title"] == "Second"
+
+def test_filter_prompts_by_collection(client: TestClient, sample_collection_data, sample_prompt_data):
+    collection_response = client.post("/collections", json=sample_collection_data)
+    collection_id = collection_response.json()["id"]
+    prompt_data = {**sample_prompt_data, "collection_id": collection_id}
+    client.post("/prompts", json=prompt_data)
+
+    response = client.get(f"/prompts?collection_id={collection_id}")
+    prompts = response.json()["prompts"]
+
+    assert len(prompts) == 1
+    assert prompts[0]["collection_id"] == collection_id

@@ -278,12 +278,10 @@ def delete_collection(collection_id: str):
     if not storage.delete_collection(collection_id):
         raise HTTPException(status_code=404, detail="Collection not found")
     
-    # Missing: Handle prompts that belong to this collection!
     for prompt in prompts:
         prompt.collection_id = None
         # Save the updated prompt back to the storage
         storage.update_prompt(prompt.id, prompt)
-    
     
     return None
 
@@ -318,5 +316,4 @@ def patch_prompt(prompt_id: str, prompt_data: PromptUpdate):
 
     # Save the updated prompt
     return storage.update_prompt(prompt_id, existing_prompt)
-
 
