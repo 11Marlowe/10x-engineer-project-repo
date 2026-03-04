@@ -1,13 +1,13 @@
 """FastAPI routes for PromptLab"""
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
+from typing import List, Optional
 
 from app.models import (
     Prompt, PromptCreate, PromptUpdate,
     Collection, CollectionCreate,
-    PromptList, CollectionList, HealthResponse,
+    PromptList, CollectionList, HealthResponse, TagsData,
     get_current_time
 )
 from app.storage import storage
@@ -51,7 +51,8 @@ def health_check():
 @app.get("/prompts", response_model=PromptList)
 def list_prompts(
     collection_id: Optional[str] = None,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    tags: Optional[List[str]] = Query(None),
 ):
     """List all prompts, with optional filtering and searching.
 
@@ -67,6 +68,10 @@ def list_prompts(
     """
     prompts = storage.get_all_prompts()
     
+    if tags:
+        # Only select prompts containing all tags
+        prompts = [prompt for prompt in prompts if all(tag in prompt.tags for tag in tags)]
+
     # Filter by collection if specified
     if collection_id:
         prompts = filter_prompts_by_collection(prompts, collection_id)
@@ -76,7 +81,6 @@ def list_prompts(
         prompts = search_prompts(prompts, search)
     
     # Sort by date (newest first)
-    # Note: There might be an issue with the sorting...
     prompts = sort_prompts_by_date(prompts, descending=True)
     
     return PromptList(prompts=prompts, total=len(prompts))
@@ -318,15 +322,15 @@ def patch_prompt(prompt_id: str, prompt_data: PromptUpdate):
     return storage.update_prompt(prompt_id, existing_prompt)
 
 @app.post("/prompts/{prompt_id}/tags")
-def add_tags_to_prompt(prompt_id: str, tags: List[str]):
-    prompt = storage.add_tags_to_prompt(prompt_id, tags)
+def add_tags_to_prompt(prompt_id: str, tags_data: TagsData):
+    prompt = storage.add_tags_to_prompt(prompt_id, tags_data.tags)
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
     return prompt
 
 @app.delete("/prompts/{prompt_id}/tags")
-def remove_tags_from_prompt(prompt_id: str, tags: List[str]):
-    prompt = storage.remove_tags_from_prompt(prompt_id, tags)
+def remove_tags_from_prompt(prompt_id: str, tags_data: TagsData):
+    prompt = storage.remove_tags_from_prompt(prompt_id, tags_data.tags)
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
     return prompt

@@ -39,7 +39,7 @@ def test_remove_tags_from_prompt(client, sample_prompt_data):
 
     # Remove a tag from the prompt
     tags_to_remove = {"tags": ["urgent"]}
-    response = client.delete(f"/prompts/{prompt_id}/tags", json=tags_to_remove)
+    response = client.request("DELETE", f"/prompts/{prompt_id}/tags", json=tags_to_remove)
 
     assert response.status_code == 200
     updated_prompt = response.json()

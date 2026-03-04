@@ -146,5 +146,8 @@ class Tag(BaseModel):
     id: str = Field(default_factory=generate_id)
     name: str = Field(..., min_length=1, max_length=50)
 
+class TagsData(BaseModel):
+    tags: List[str]
+
 
 

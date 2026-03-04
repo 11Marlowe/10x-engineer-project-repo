@@ -146,6 +146,23 @@ class Storage:
         self._prompts.clear()
         self._collections.clear()
 
+    def add_tags_to_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+        prompt = self.get_prompt(prompt_id)
+        if not prompt:
+            return None
+        # Add tags only if they are not already present
+        prompt.tags.extend(tag for tag in tags if tag not in prompt.tags)
+        return self.update_prompt(prompt_id, prompt)
+
+    def remove_tags_from_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+        prompt = self.get_prompt(prompt_id)
+        if not prompt:
+            return None
+        # Remove specified tags
+        prompt.tags = [tag for tag in prompt.tags if tag not in tags]
+        return self.update_prompt(prompt_id, prompt)
 
 # Global storage instance
 storage = Storage()
+
+
