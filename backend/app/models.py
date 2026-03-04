@@ -142,11 +142,21 @@ class HealthResponse(BaseModel):
     version: str
 
 class Tag(BaseModel):
-    """Model for a Tag."""
+    """Model for a Tag.
+    
+    Attributes:
+        id (str): Unique identifier for the tag.
+        name (str): The name of the tag.
+    """
     id: str = Field(default_factory=generate_id)
     name: str = Field(..., min_length=1, max_length=50)
 
 class TagsData(BaseModel):
+    """Model for capturing a list of tags.
+    
+    Attributes:
+        tags (List[str]): A list of tag names.
+    """
     tags: List[str]
 
 

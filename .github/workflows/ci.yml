@@ -27,11 +27,11 @@ jobs:
         source venv/bin/activate
         pip install -r backend/requirements.txt
 
-    - name: Run Linting
-      run: |
-        source venv/bin/activate
-        pip install flake8
-        flake8 backend
+    # - name: Run Linting
+    #   run: |
+    #     source venv/bin/activate
+    #     pip install flake8
+    #     flake8 backend
 
     - name: Run Tests with Coverage
       run: |

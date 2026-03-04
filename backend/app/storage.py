@@ -147,6 +147,15 @@ class Storage:
         self._collections.clear()
 
     def add_tags_to_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+        """Add tags to a prompt.
+
+        Args:
+            prompt_id (str): The ID of the prompt to add tags to.
+            tags (List[str]): A list of tags to be added to the prompt.
+
+        Returns:
+            Optional[Prompt]: The updated prompt object if successful, else None.
+        """
         prompt = self.get_prompt(prompt_id)
         if not prompt:
             return None
@@ -155,6 +164,15 @@ class Storage:
         return self.update_prompt(prompt_id, prompt)
 
     def remove_tags_from_prompt(self, prompt_id: str, tags: List[str]) -> Optional[Prompt]:
+        """Remove tags from a prompt.
+
+        Args:
+            prompt_id (str): The ID of the prompt to remove tags from.
+            tags (List[str]): A list of tags to be removed from the prompt.
+
+        Returns:
+            Optional[Prompt]: The updated prompt object if successful, else None.
+        """
         prompt = self.get_prompt(prompt_id)
         if not prompt:
             return None

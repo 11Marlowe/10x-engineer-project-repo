@@ -323,6 +323,21 @@ def patch_prompt(prompt_id: str, prompt_data: PromptUpdate):
 
 @app.post("/prompts/{prompt_id}/tags")
 def add_tags_to_prompt(prompt_id: str, tags_data: TagsData):
+    """Add tags to a specific prompt.
+
+    Args:
+        prompt_id (str): The ID of the prompt to add tags to.
+        tags_data (TagsData): The tags data containing a list of tags to add.
+
+    Returns:
+        Prompt: The updated prompt with the new tags.
+
+    Raises:
+        HTTPException: If the prompt does not exist (404 error).
+
+    Example:
+        >>> curl -X POST "http://localhost:8000/prompts/{prompt_id}/tags" -H "Content-Type: application/json" -d '{"tags": ["urgent", "idea"]}'
+    """
     prompt = storage.add_tags_to_prompt(prompt_id, tags_data.tags)
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
@@ -330,6 +345,21 @@ def add_tags_to_prompt(prompt_id: str, tags_data: TagsData):
 
 @app.delete("/prompts/{prompt_id}/tags")
 def remove_tags_from_prompt(prompt_id: str, tags_data: TagsData):
+    """Remove tags from a specific prompt.
+
+    Args:
+        prompt_id (str): The ID of the prompt to remove tags from.
+        tags_data (TagsData): The tags data containing a list of tags to remove.
+
+    Returns:
+        Prompt: The updated prompt after tags removal.
+
+    Raises:
+        HTTPException: If the prompt does not exist (404 error).
+
+    Example:
+        >>> curl -X DELETE "http://localhost:8000/prompts/{prompt_id}/tags" -H "Content-Type: application/json" -d '{"tags": ["urgent"]}'
+    """
     prompt = storage.remove_tags_from_prompt(prompt_id, tags_data.tags)
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
@@ -337,6 +367,14 @@ def remove_tags_from_prompt(prompt_id: str, tags_data: TagsData):
 
 @app.get("/tags")
 def get_all_tags() -> List[str]:
+    """Retrieve all unique tags from prompts.
+
+    Returns:
+        List[str]: A list of unique tags used in any prompt.
+
+    Example:
+        >>> curl -X GET "http://localhost:8000/tags"
+    """
     prompts = storage.get_all_prompts()
     tags = {tag for prompt in prompts for tag in prompt.tags}
     return list(tags)
