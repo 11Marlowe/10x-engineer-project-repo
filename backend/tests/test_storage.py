@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import pytest
 from app.models import Prompt, Collection
 from app.storage import Storage
