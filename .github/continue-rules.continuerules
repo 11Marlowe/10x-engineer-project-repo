@@ -1,0 +1,34 @@
+# Continue-Rules for AI Assistance
+
+- **Coding Standards**: Follow PEP 8 for Python code style.
+- **Docstring Format**: Use Google-style docstrings for all functions and classes.
+- **Error Handling**: Use Python exceptions and provide clear error messages.
+- **Testing**: Ensure all new code is accompanied by unit tests with at least 80% coverage.
+- **Version Control**: Commit small, logically separated changes with descriptive messages.
+- **Dependencies**: Use `requirements.txt` to manage Python dependencies.
+- **Docker**: Ensure the Dockerfile is optimized for minimal image size without sacrificing readability.
+- **CI/CD**: Ensure that all builds pass before merging into the main branch.
+- **APIs**: All endpoints should have thorough documentation and handle request validation appropriately.
+- **Security**: Sanitize all inputs and manage sensitive data using environment variables or secret management tools.
+
+# Specific Guidelines
+
+1. **Prompts Handling**
+   - Ensure all prompt data is validated on input.
+   - Remove any sensitive information before logging.
+
+2. **Collections Management**
+   - Validate that collections are not orphaned unexpectedly.
+   - Consider potential circular dependencies when linking collections.
+
+3. **Tagging System**
+   - Ensure tags are consistently formatted (lowercase, no special characters).
+   - Handle duplicate tags gracefully, providing informative feedback.
+
+4. **Deployment**
+   - Prefer automated deployments using scripts or CI/CD pipelines.
+   - Always review environment configurations for security vulnerabilities before deployment.
+
+5. **Collaboration**
+   - Use descriptive pull request titles and descriptions.
+   - Tag review requests appropriately with the correct team member.
