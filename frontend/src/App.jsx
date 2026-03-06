@@ -19,6 +19,7 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Fetch all data on component mount
     fetchAllData();
   }, []);
 
@@ -26,45 +27,55 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await fetchPrompts();
-      await fetchCollections();
+      const [promptsData, collectionsData] = await Promise.all([
+        getPrompts(),
+        getCollections(),
+      ]);
+      setPrompts(promptsData.prompts);
+      setCollections(collectionsData.collections);
     } catch (err) {
-      setError('Failed to load data, please try again later.');
+      setError("Failed to load data, please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchPrompts = async () => {
-    const data = await getPrompts();
-    setPrompts(data.prompts);
-  };
-
-  const fetchCollections = async () => {
-    const data = await getCollections();
-    setCollections(data.collections);
-  };
-
   const handleCreatePrompt = async (prompt) => {
-    await createPrompt(prompt);
-    fetchPrompts();
+    try {
+      await createPrompt(prompt);
+      fetchPrompts();  // Refresh prompts list
+    } catch (err) {
+      setError("Failed to create prompt. Please try again.");
+    }
   };
 
   const handleUpdatePrompt = async (id, updatedPrompt) => {
-    await updatePrompt(id, updatedPrompt);
-    fetchPrompts();
+    try {
+      await updatePrompt(id, updatedPrompt);
+      fetchPrompts();  // Refresh prompts list
+    } catch (err) {
+      setError("Failed to update prompt. Please try again.");
+    }
   };
 
   const handleDeletePrompt = async (id) => {
     if (window.confirm('Are you sure you want to delete this prompt?')) {
-      await deletePrompt(id);
-      fetchPrompts();
+      try {
+        await deletePrompt(id);
+        fetchPrompts();  // Refresh prompts list
+      } catch (err) {
+        setError("Failed to delete prompt. Please try again.");
+      }
     }
   };
 
   const handleCreateCollection = async (collection) => {
-    await createCollection(collection);
-    fetchCollections();
+    try {
+      await createCollection(collection);
+      fetchCollections();  // Refresh collections list
+    } catch (err) {
+      setError("Failed to create collection. Please try again.");
+    }
   };
 
   const handleSelectCollection = (id) => {
