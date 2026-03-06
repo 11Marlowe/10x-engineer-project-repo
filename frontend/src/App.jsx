@@ -6,6 +6,8 @@ import PromptDetail from './components/PromptDetail';
 import PromptForm from './components/PromptForm';
 import CollectionList from './components/CollectionList';
 import CollectionForm from './components/CollectionForm';
+import LoadingSpinner from './components/LoadingSpinner';
+import ErrorMessage from './components/ErrorMessage';
 import { getPrompts, createPrompt, updatePrompt, deletePrompt } from './api/prompts';
 import { getCollections, createCollection } from './api/collections';
 
@@ -13,11 +15,25 @@ function App() {
   const [prompts, setPrompts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPrompts();
-    fetchCollections();
+    fetchAllData();
   }, []);
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await fetchPrompts();
+      await fetchCollections();
+    } catch (err) {
+      setError('Failed to load data, please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchPrompts = async () => {
     const data = await getPrompts();
@@ -56,18 +72,25 @@ function App() {
   };
 
   const filteredPrompts = selectedCollection
-    ? prompts.filter((prompt) => prompt.collection_id === selectedCollection)
+    ? prompts.filter(prompt => prompt.collection_id === selectedCollection)
     : prompts;
 
   return (
     <Router>
       <Layout>
+        {loading && <LoadingSpinner />}
+        {error && <ErrorMessage message={error} />}
+        
         <Routes>
           <Route path="/" element={
             <>
               <CollectionForm onSubmit={handleCreateCollection} />
               <CollectionList collections={collections} onSelect={handleSelectCollection} />
-              <PromptList prompts={filteredPrompts} onDelete={handleDeletePrompt} />
+              {filteredPrompts.length === 0 ? (
+                <p>No prompts available.</p>
+              ) : (
+                <PromptList prompts={filteredPrompts} onDelete={handleDeletePrompt} />
+              )}
             </>
           } />
           <Route path="/prompts/new" element={<PromptForm onSubmit={handleCreatePrompt} />} />
