@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import PromptList from './components/PromptList';
 import PromptDetail from './components/PromptDetail';
@@ -62,19 +62,17 @@ function App() {
   return (
     <Router>
       <Layout>
-        <Switch>
-          <Route path="/" exact>
-            <CollectionForm onSubmit={handleCreateCollection} />
-            <CollectionList collections={collections} onSelect={handleSelectCollection} />
-            <PromptList prompts={filteredPrompts} onDelete={handleDeletePrompt} />
-          </Route>
-          <Route path="/prompts/new" exact>
-            <PromptForm onSubmit={handleCreatePrompt} />
-          </Route>
-          <Route path="/prompts/:id" exact>
-            <PromptDetail />
-          </Route>
-        </Switch>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <CollectionForm onSubmit={handleCreateCollection} />
+              <CollectionList collections={collections} onSelect={handleSelectCollection} />
+              <PromptList prompts={filteredPrompts} onDelete={handleDeletePrompt} />
+            </>
+          } />
+          <Route path="/prompts/new" element={<PromptForm onSubmit={handleCreatePrompt} />} />
+          <Route path="/prompts/:id" element={<PromptDetail />} />
+        </Routes>
       </Layout>
     </Router>
   );
